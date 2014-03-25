@@ -1,0 +1,734 @@
+<?php
+
+/**
+* @Conexion con la Base de datos
+*/
+class DB extends SQLite3 {
+  function __construct( $file ) {
+    $this->open( $file, SQLITE3_OPEN_READWRITE );
+   }
+}
+
+function db_connect() {
+    $db = new DB('bdd/mdd.db');
+    if ($db->lastErrorMsg() != 'not an error') {
+        print "Database Error: " . $db->lastErrorMsg() . "<br />"; //Does not get triggered
+    }
+    return $db;
+}
+
+
+/**
+* @Modelo para tabla Usuarios
+*/
+class Usuarios{
+    var $DB;
+    function conn(){
+        $this->DB= db_connect();
+    }
+
+    function get_nombre($id){
+        try{
+            $query = "select nombre from usuarios where id=$id";
+            $result = $this->DB->query($query);
+            if ($res = $result->fetchArray(SQLITE3_ASSOC)){
+                return $res['nombre'];
+            }
+            else{
+    	        return "None";
+            }
+        }
+        catch (Exception $e){
+            echo $e->getMessage();
+        }
+    $this->DB->close();
+  }
+
+  function get_id($nombre){
+    try{
+      $query = "select id from usuarios where nombre='$nombre'";
+      $result = $this->DB->query($query);
+      if ($res = $result->fetchArray(SQLITE3_ASSOC)){
+	    return $res['id'];
+      }
+      else{
+	    return 0;
+      }
+    }
+    catch (Exception $e){
+	    echo $e->getMessage();
+    }
+    $this->DB->close();
+  }
+
+  function login($nombre, $passwd){
+      try{
+          $pass=sha1($passwd);
+          $query = "select rol from usuarios where nombre='$nombre' and passwd='$pass'";
+          $result = $this->DB->query($query);
+          if ($res = $result->fetchArray(SQLITE3_ASSOC)){
+	    //echo "id".$res['id'];
+    	    return $res['rol'];
+          }
+          else{
+	    //echo "null";
+    	    return 0;
+          }
+        }
+        catch (Exception $e){
+    	    echo $e->getMessage();
+        }
+    $this->DB->close();
+  }
+
+  function get_rol($id){
+    try{
+      $query = "select rol from usuarios where id=$id";
+      $result = $this->DB->query($query);
+      if ($res = $result->fetchArray(SQLITE3_ASSOC)){
+	    return $res['rol'];
+      }
+      else{
+    	return 0;
+      }
+    }
+    catch (Exception $e){
+	    echo $e->getMessage();
+    }
+    $this->DB->close();
+  }
+
+  function rol($nombre){
+    try{
+      $query = "select rol from usuarios where nombre=$nombre";
+      $result = $this->DB->query($query);
+      if ($res = $result->fetchArray(SQLITE3_ASSOC)){
+	    return $res['rol'];
+      }
+      else{
+    	return 0;
+      }
+    }
+    catch (Exception $e){
+	    echo $e->getMessage();
+    }
+    $this->DB->close();
+  }  
+
+	function listar_rol(){
+        try{
+            $result = $this->DB->query("select * from rol order by id;");          
+			
+			echo "<select name='rol'>";
+			while ($res = $result->fetchArray(SQLITE3_ASSOC)){
+				$id = $res['id'];
+				$rol = $res['nombre'];
+
+				echo "<option value='$id'>$rol</option>";
+			}
+			echo "</select>";
+			
+        }
+        catch (Exception $e){
+            echo $e->getMessage();
+        }
+    $this->DB->close();
+  }
+  
+	function listar_usuarios(){
+        try{
+            $result = $this->DB->query("select rol.nombre as rol, usuarios.nombre as nombre from usuarios, rol where usuarios.rol = rol.id order by rol;");          
+			
+			echo "<center><table style=\"width:400px\" class=\"table table-striped\">";
+		    echo "<tr><td><b> ROL </b></td> <td><b> Usuario</b> </td></tr> ";
+		    while ($res = $result->fetchArray(SQLITE3_ASSOC)){
+			$rol = $res['rol'];
+			$nombre = $res['nombre'];
+			echo "<tr>";
+			echo "<td> $rol </td>"; 
+			echo "<td> $nombre </td>";
+			echo "</tr>";
+		    }
+	   	    echo "</table></center>";		
+			
+        }
+        catch (Exception $e){
+            echo $e->getMessage();
+        }
+    $this->DB->close();
+  }  
+  
+  function insert($nombre, $rol, $passwd){
+    $pass = sha1($passwd);
+    $query =  $this->DB->exec("INSERT INTO usuarios(nombre,rol, passwd) VALUES ('$nombre', $rol, '$pass');");
+        if (!$query) {
+            die("Database transaction failed: " . $this->DB->lastErrorMsg() );
+        }
+    $this->DB->close();
+  }
+
+    function update_nombre($id, $nombre){
+        $query =  $this->DB->exec("update usuarios set nombre='$nombre' where id=$id;");
+        if (!$query) {
+            die("Database transaction failed: " . $this->DB->lastErrorMsg() );
+        }
+        $this->DB->close();
+
+    }
+
+    function update_rol($id, $rol){
+        $query =  $this->DB->exec("update usuarios set rol=$rol where id=$id;");
+        if (!$query) {
+            die("Database transaction failed: " . $this->DB->lastErrorMsg() );
+        }
+        $this->DB->close();
+
+    }
+
+    function update_passwd($id, $passwd){
+        $pass = sha1($passwd);
+        $query =  $this->DB->exec("update usuarios set passwd='$pass' where id=$id;");
+        if (!$query) {
+            die("Database transaction failed: " . $this->DB->lastErrorMsg() );
+        }
+        $this->DB->close();
+    }
+}
+
+
+/**
+* @Modelo para tabla Aeronave
+*/
+class Aeronave{
+    var $DB;
+    function conn(){
+        $this->DB= db_connect();
+    }
+
+    function get_limite_pasajeros($id){
+        try{
+            $query = "select limite_pasajeros from aeronave where id=$id";
+            $result = $this->DB->query($query);
+            if ($res = $result->fetchArray(SQLITE3_ASSOC)){
+                return $res['limite_pasajeros'];
+            }
+            else{
+                return "None";
+            }
+        }
+        catch (Exception $e){
+            echo $e->getMessage();
+        }
+    $this->DB->close();
+  }
+
+  function get_id_nave_origen($id){
+    try{
+      $query = "select id_nave_origen from aeronave where id=$id";
+      $result = $this->DB->query($query);
+      if ($res = $result->fetchArray(SQLITE3_ASSOC)){
+        return $res['id_nave_origen'];
+      }
+      else{
+        return 0;
+      }
+    }
+    catch (Exception $e){
+        echo $e->getMessage();
+    }
+    $this->DB->close();
+  }
+
+  function get_id_nave_destino($id){
+    try{
+      $query = "select id_nave_destino from aeronave where id=$id";
+      $result = $this->DB->query($query);
+      if ($res = $result->fetchArray(SQLITE3_ASSOC)){
+        return $res['id_nave_destino'];
+      }
+      else{
+        return 0;
+      }
+    }
+    catch (Exception $e){
+        echo $e->getMessage();
+    }
+    $this->DB->close();
+  }
+
+  function get_id_estado($id){
+    try{
+      $query = "select id_estado from aeronave where id=$id";
+      $result = $this->DB->query($query);
+      if ($res = $result->fetchArray(SQLITE3_ASSOC)){
+        return $res['id_estado'];
+      }
+      else{
+        return 0;
+      }
+    }
+    catch (Exception $e){
+        echo $e->getMessage();
+    }
+    $this->DB->close();
+  }
+
+  function get_fecha_origen($id){
+    try{
+      $query = "select fecha_origen from aeronave where id=$id";
+      $result = $this->DB->query($query);
+      if ($res = $result->fetchArray(SQLITE3_ASSOC)){
+        return $res['fecha_origen'];
+      }
+      else{
+        return 0;
+      }
+    }
+    catch (Exception $e){
+        echo $e->getMessage();
+    }
+    $this->DB->close();
+  }
+
+
+  function get_fecha_destino($id){
+    try{
+      $query = "select fecha_destino from aeronave where id=$id";
+      $result = $this->DB->query($query);
+      if ($res = $result->fetchArray(SQLITE3_ASSOC)){
+        return $res['fecha_destino'];
+      }
+      else{
+        return 0;
+      }
+    }
+    catch (Exception $e){
+        echo $e->getMessage();
+    }
+    $this->DB->close();
+  }
+
+	function listar_aeronave(){
+        try{
+            $result = $this->DB->query("select * from aeronave order by id_nave_origen;");          
+			
+			echo "<center><table style=\"width:400px\" class=\"table table-striped\">";
+		    echo "<tr><td><b> ID </b></td> <td><b> Capacidad </b> <td><b> Fecha de origen </b> <td><b> Fecha de llegada</b> </td></tr> ";
+		    while ($res = $result->fetchArray(SQLITE3_ASSOC)){
+			$id = $res['id'];
+			$capacidad = $res['limite_pasajeros'];
+			$fecha_origen = $res['fecha_origen'];
+			$fecha_destino = $res['fecha_destino'];
+			echo "<tr>";
+			echo "<td> $id </td>"; 
+			echo "<td> $capacidad </td>";
+			echo "<td> $fecha_origen </td>";
+			echo "<td> $fecha_destino </td>";
+			echo "</tr>";
+		    }
+	   	    echo "</table></center>";		
+			
+        }
+        catch (Exception $e){
+            echo $e->getMessage();
+        }
+    $this->DB->close();
+  }    
+  
+
+  function insert($limite_pasajeros, $id_nave_origen, $id_nave_destino, $id_estado, $fecha_origen, $fecha_destino){
+    $query =  $this->DB->exec("INSERT INTO aeronave(limite_pasajeros, id_nave_origen, id_nave_destino, id_estado, fecha_origen, fecha_destino) VALUES ($limite_pasajeros, $id_nave_origen, $id_nave_destino, $id_estado, '$fecha_origen', '$fecha_destino');");
+        if (!$query) {
+            die("Database transaction failed: " . $this->DB->lastErrorMsg() );
+        }
+    $this->DB->close();
+  }
+
+    function update_limite_pasajeros($id, $limite_pasajeros){
+        $query =  $this->DB->exec("update aeronave set limite_pasajeros=$limite_pasajeros where id=$id;");
+        if (!$query) {
+            die("Database transaction failed: " . $this->DB->lastErrorMsg() );
+        }
+        $this->DB->close();
+
+    }
+
+    function update_id_nave_origen($id, $id_nave_origen){
+        $query =  $this->DB->exec("update aeronave set id_nave_origen=$id_nave_origen where id=$id;");
+        if (!$query) {
+            die("Database transaction failed: " . $this->DB->lastErrorMsg() );
+        }
+        $this->DB->close();
+
+    }
+
+    function update_id_nave_destino($id, $id_nave_destino){
+        $query =  $this->DB->exec("update aeronave set id_nave_destino=$id_nave_destino where id=$id;");
+        if (!$query) {
+            die("Database transaction failed: " . $this->DB->lastErrorMsg() );
+        }
+        $this->DB->close();
+    }
+
+    function update_id_estado($id, $id_estado){
+        $query =  $this->DB->exec("update aeronave set id_estado=$id_estado where id=$id;");
+        if (!$query) {
+            die("Database transaction failed: " . $this->DB->lastErrorMsg() );
+        }
+        $this->DB->close();
+    }
+
+    function update_fecha_origen($id, $fecha_origen){
+        $query =  $this->DB->exec("update aeronave set fecha_origen='$fecha_origen' where id=$id;");
+        if (!$query) {
+            die("Database transaction failed: " . $this->DB->lastErrorMsg() );
+        }
+        $this->DB->close();
+    }
+
+    function update_fecha_destino($id, $fecha_destino){
+        $query =  $this->DB->exec("update aeronave set fecha_destino='$fecha_destino' where id=$id;");
+        if (!$query) {
+            die("Database transaction failed: " . $this->DB->lastErrorMsg() );
+        }
+        $this->DB->close();
+    }
+}
+
+/**
+* @Modelo para tabla Nave_Nodriza
+*/
+class NaveNodriza{
+    var $DB;
+    function conn(){
+        $this->DB= db_connect();
+    }
+    
+    
+   function listar_nave_nodriza_box(){
+        try{
+            $result = $this->DB->query("select * from nave_nodriza order by id;");          
+			
+			echo "<select name='id_nave'>";
+			while ($res = $result->fetchArray(SQLITE3_ASSOC)){
+				$id = $res['id'];
+				$rol = $res['nombre'];
+				echo "<option value='$id'>$rol</option>";
+			}
+			echo "</select>";
+			
+        }
+        catch (Exception $e){
+            echo $e->getMessage();
+        }
+    $this->DB->close();
+  }
+
+    //COMENTAR FUNCION!!!!
+    function get_count(){
+        try{
+            $query = "select count(*) as count from nave_nodriza;";
+            $result = $this->DB->query($query);
+            if ($res = $result->fetchArray(SQLITE3_ASSOC)){
+                return $res['count'];
+            }
+            else{
+    	        return "None";
+            }
+        }
+        catch (Exception $e){
+            echo $e->getMessage();
+        }
+    $this->DB->close();
+    }
+
+    //Lista de naves nodrizas
+    function get_listar($type){
+        try{
+            $result = $this->DB->query("select * from nave_nodriza order by id;");
+           if($type == "1"){ //TABLE
+	        echo "<center><table style=\"width:400px\" class=\"table table-striped\">";
+		    echo "<tr><td><b> ID </b></td> <td><b> Nave Nodriza</b> </td><td><b>Ver</b></td></tr> ";
+		    while ($res = $result->fetchArray(SQLITE3_ASSOC)){
+			$id = $res['id'];
+			$nombre = $res['nombre'];
+			echo "<tr>";
+			echo "<td><a href='ver_nodriza.php?id=$id'> $id </a></td>"; //link a la vista de la nave nod..
+			echo "<td> $nombre</td>";
+            echo "<td><a href=\"ver_nodriza.php?id=$id\" class=\"btn btn-primary\" role=\"button\">Ver</a></td>";
+			echo "</tr>";
+		    }
+	   	    echo "</table></center>";
+	     }
+	    if($type == "2"){ //SELECT
+		    echo "<select name='origen'>";
+		    while ($res = $result->fetchArray(SQLITE3_ASSOC)){
+			$id = $res['id'];
+			$nombre = $res['nombre'];
+
+			echo "<option value='$id'>$nombre</option>";
+		    }
+		    echo "</select>";
+           }
+	    if($type == "3"){ //SELECT
+		    echo "<select name='destino'>";
+		    while ($res = $result->fetchArray(SQLITE3_ASSOC)){
+			$id = $res['id'];
+			$nombre = $res['nombre'];
+
+			echo "<option value='$id'>$nombre</option>";
+		    }
+		    echo "</select>";
+           }
+
+        }
+        catch (Exception $e){
+            echo $e->getMessage();
+        }
+    $this->DB->close();
+  }
+
+    //Nombre de la nave nodriza
+    function get_nombre($id){
+        try{
+            $query = "select nombre from nave_nodriza where  id=$id;";
+            $result = $this->DB->query($query);
+            if ($res = $result->fetchArray(SQLITE3_ASSOC)){
+                return $res['nombre'];
+            }
+            else{
+    	        return "None";
+            }
+        }
+        catch (Exception $e){
+            echo $e->getMessage();
+        }
+    $this->DB->close();
+  }
+
+  //Obtiene el id de la nave nodriza
+  function get_id($nombre){
+    try{
+      $query = "select id from nave_nodriza where nombre='$nombre'";
+      $result = $this->DB->query($query);
+      if ($res = $result->fetchArray(SQLITE3_ASSOC)){
+	    return $res['id'];
+      }
+      else{
+	    return "None";
+      }
+    }
+    catch (Exception $e){
+	    echo $e->getMessage();
+    }
+    $this->DB->close();
+  }
+
+  //Imprime todos los datos de la nave nodriza
+  function get_datos($id){
+      echo "<center><h3>Nave Nodriza</h3></center>";
+      echo "<center><table style=\"width:400px\" class=\"table table-striped\">";
+      try{
+        $query = "select * from nave_nodriza where id='$id'";
+        $result = $this->DB->query($query);
+        if ($res = $result->fetchArray(SQLITE3_ASSOC)){
+            echo "<tr>";
+            echo "<td><b>ID</b></td><td>".$res['id']."</td>";
+            echo "</tr><tr>";
+            echo "<td><b>Nombre</b></td><td>".$res['nombre']."</td>";
+            echo "</tr>";
+        }
+        else{
+            echo "<tr>";
+            echo "<td><b>ID</b></td><td> - </td>";
+            echo "<td><b>Nombre</b></td><td> - </td>";
+            echo "</tr>";
+        }
+      echo "</table></center>";
+    }
+    catch (Exception $e){
+        echo $e->getMessage();
+    }
+    $this->DB->close();
+
+  }
+
+  function insert($nombre){
+    $query =  $this->DB->exec("insert into nave_nodriza(nombre) values ('$nombre')");
+        if (!$query) {
+            die("Database transaction failed: " . $this->DB->lastErrorMsg() );
+        }
+    $this->DB->close();
+  }
+
+    function update_nombre($id, $nombre){
+        $query =  $this->DB->exec("update nave_nodriza set nombre='$nombre' where id=$id;");
+        if (!$query) {
+            die("Database transaction failed: " . $this->DB->lastErrorMsg() );
+        }
+        $this->DB->close();
+    }
+
+}
+
+
+
+
+/**
+* @Modelo para tabla Pasajero
+*/
+class Pasajero{
+    var $DB;
+    function conn(){
+        $this->DB= db_connect();
+    }
+
+    function get_nombre($id){
+        try{
+            $query = "select nombre from pasajero where id=$id";
+            $result = $this->DB->query($query);
+            if ($res = $result->fetchArray(SQLITE3_ASSOC)){
+                return $res['nombre'];
+            }
+            else{
+    	        return "None";
+            }
+        }
+        catch (Exception $e){
+            echo $e->getMessage();
+        }
+    $this->DB->close();
+  }
+
+  function get_id($nombre){
+    try{
+      $query = "select id from usuarios where nombre='$nombre'";
+      $result = $this->DB->query($query);
+      if ($res = $result->fetchArray(SQLITE3_ASSOC)){
+	    return $res['id'];
+      }
+      else{
+	    return 0;
+      }
+    }
+    catch (Exception $e){
+	    echo $e->getMessage();
+    }
+    $this->DB->close();
+  }
+
+  //Retorna el id de alguna aeronave (para saber en q nave esta el pasajero)
+  function get_id_nave($id){//id del pasajero
+    try{
+      $query = "select id_nave from pasajero where id=$id";
+      $result = $this->DB->query($query);
+      if ($res = $result->fetchArray(SQLITE3_ASSOC)){
+	    return $res['id_nave'];
+      }
+      else{
+    	return 0;
+      }
+    }
+    catch (Exception $e){
+	    echo $e->getMessage();
+    }
+    $this->DB->close();
+  }
+
+  
+    //Retorna 0 el id_nave es de una nave nodriza, 1 el id_nave es de una aeronave
+  function get_id_tipo_nave($id){//id del pasajero
+    try{
+      $query = "select tipo_nave from pasajero where id=$id";
+      $result = $this->DB->query($query);
+      if ($res = $result->fetchArray(SQLITE3_ASSOC)){
+	    return $res['tipo_nave'];
+      }
+      else{
+    	return 0;
+      }
+    }
+    catch (Exception $e){
+	    echo $e->getMessage();
+    }
+    $this->DB->close();
+  }
+    //Lista de TODOS los pasajeros
+   function listar_pasajeros(){
+        try{
+            $result = $this->DB->query("select * from pasajero order by id;");          
+			
+		echo "<center><table style=\"width:400px\" class=\"table table-striped\">";
+		echo "<tr><td><b> ID </b></td> <td><b> Nombre</b> </td><td><b>Nave</b></td><td><b>Tipo Nave</b></td><td><b>Ticket</b></td></tr> ";
+		while ($res = $result->fetchArray(SQLITE3_ASSOC)){
+			echo "<tr>";
+			echo "<td>".$res['id']." </td>"; 
+			echo "<td>".$res['nombre']."</td>";
+			echo "<td>".$res['id_nave']."</td>";
+			if($res['tipo_nave']==0){
+			  echo "<td>Nodriza</td>";
+			}
+			if($res['tipo_nave']==1){
+			  echo "<td>Aeronave</td>";
+			}
+			echo "<td>".$res['ticket']."</td>";
+			echo "</tr>";
+		}
+	        echo "</table></center>";		
+        }
+        catch (Exception $e){
+            echo $e->getMessage();
+        }
+    $this->DB->close();
+  }  
+ //Lista de una cantidad determinada de pasajero
+ function listar_pasajero_nave($id_nave){
+        try{
+            $result = $this->DB->query("select * from pasajero where id_nave=$id_nave order by id;");          
+			
+		echo "<center><table style=\"width:400px\" class=\"table table-striped\">";
+		echo "<tr><td><b> ID </b></td> <td><b> Nombre</b> </td><td><b>Aeronave</b></td><td><b>Ticket</b></td></tr> ";
+		while ($res = $result->fetchArray(SQLITE3_ASSOC)){
+			echo "<tr>";
+			echo "<td>".$res['id']." </td>"; 
+			echo "<td>".$res['nombre']."</td>";
+			echo "<td>".$res['id_nave']."</td>";
+			echo "<td>".$res['ticket']."</td>";
+			echo "</tr>";
+		}
+	        echo "</table></center>";		
+        }
+        catch (Exception $e){
+            echo $e->getMessage();
+        }
+    $this->DB->close();
+  } function update_ticket($id, $ticket){
+        $query =  $this->DB->exec("update pasajero set ticket=$ticket where id=$id;");
+        if (!$query) {
+            die("Database transaction failed: " . $this->DB->lastErrorMsg() );
+        }
+        $this->DB->close();
+    }
+
+    function update_id_nave($id, $id_nave){
+        $pass = sha1($passwd);
+        $query =  $this->DB->exec("update pasajero set id_nave='$id_nave' where id=$id;");
+        if (!$query) {
+            die("Database transaction failed: " . $this->DB->lastErrorMsg() );
+        }
+        $this->DB->close();
+    }
+    
+
+    function insert($nombre, $id_nave, $ticket, $tipo_nave){
+    $query =  $this->DB->exec("insert into pasajero(nombre, id_nave, ticket, tipo_nave) values ('$nombre', $id_nave, '$ticket', $tipo_nave)");
+        if (!$query) {
+            die("Database transaction failed: " . $this->DB->lastErrorMsg() );
+        }
+    $this->DB->close();
+  }
+
+    
+}
+
+?>
