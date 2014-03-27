@@ -69,7 +69,7 @@ else{
 	<div class="caption">  
 	  <h3>Aeronave</h3>
 	  <p>Crea trasporte para los extraterrestes</p>
-	  <p><a href="add_aeronave_form.php" class="btn btn-primary" role="button">Crear</a> <a href="listar_aeronaves.php" class="btn btn-default"   role="button">Ver</a> <a href="#" class="btn btn-danger"   role="button">Borrar</a></p>
+	  <p><a href="add_aeronave_form.php" class="btn btn-primary" role="button">Crear</a> <a href="listar_aeronaves.php" class="btn btn-default"   role="button">Ver</a> <a href="borrar_aeronave.php" class="btn btn-danger"   role="button">Borrar</a></p>
 	</div>
       </div>
     </div>
@@ -84,7 +84,7 @@ else{
 	<div class="caption">
 	  <h3>Usuarios</h3>
 	  <p>Agrega usuarios al sistema</p>
-	  <p><a href="add_user_form.php" class="btn btn-primary" role="button">Agregar</a> <a href="ver_usuarios.php" class="btn btn-default"   role="button">Ver</a> <a href="#" class="btn btn-danger"   role="button">Borrar</a></p>
+	  <p><a href="add_user_form.php" class="btn btn-primary" role="button">Agregar</a> <a href="ver_usuarios.php" class="btn btn-default"   role="button">Ver</a> <a href="borrar_usuario.php" class="btn btn-danger"   role="button">Borrar</a></p>
 	</div>
       </div>
     </div>  
@@ -101,7 +101,7 @@ else{
 	<div class="caption">  
 	  <h3>Gestiona pasajeros</h3>
 	  <p>Crontrol de transpote de extraterrestres</p>
-	  <p><a href="add_pasajero_form.php" class="btn btn-primary" role="button"> Crear Pasajero </a> <a href="#" class="btn btn-default" role="button"> Ver por vuelo </a> <a href="pasajeros_all.php" class="btn btn-warning"   role="button">Ver todos</a></p>
+	  <p><a href="add_pasajero_form.php" class="btn btn-primary" role="button"> Crear Pasajero </a> <a href="listar_aeronaves.php" class="btn btn-default" role="button"> Ver por vuelo </a> <a href="pasajeros_all.php" class="btn btn-warning"   role="button">Ver todos</a></p>
 	</div>
       </div>
     </div>

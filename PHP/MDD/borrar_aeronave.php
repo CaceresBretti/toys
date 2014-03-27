@@ -17,13 +17,24 @@ include('lib/check.php');
 <!-- BEGIN CENTER -->
 <center>
 <?php
-	echo "<label for='exampleInputEmail1'>Lista de Aeronaves</label><br><br>";
 
+	if(isset($_POST["delete_aeronave"])){
+		$id = $_POST["id"];
+		
+		if($id != ''){
+			$del = new Aeronave;
+			$del->conn();
+			$del->delete($id);
+			echo "<div class='alert alert-danger'><a href='#' class='alert-link'>La Aeronave ' $id ' ha sido eliminada.</a></div><br>";
+		}
+	}
+	
+	echo "<label for='exampleInputEmail1'>Lista de Aeronaves</label><br><br>";
 	$aeronave= new Aeronave;
 	$aeronave->conn();
+		
+	$aeronave->listar_form_delete();
 	
-	$aeronave->listar_aeronave();
-
 	echo "<br><br>";
 
 ?>

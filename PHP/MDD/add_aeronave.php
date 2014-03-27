@@ -4,14 +4,16 @@
 include ('bdd/sqlite.php');
 include('lib/check.php');
 
-$nombre=$_POST['nombre'];
+$today = date("Y-m-d");
+
 $capacidad=$_POST['capacidad'];
 $origen=$_POST['origen'];
 $destino=$_POST['destino'];
-$fecha_origen=$_POST['start-time'];
-$fecha_destino=$_POST['end-time'];
+$fecha_origen=$today . " " . $_POST['start-time'].":00";
+$fecha_destino=$today . " " . $_POST['end-time'].":00";
 
-if($nombre == ""){
+
+if($capacidad == ""){
 	header('Location: panel.php');
 }
 
@@ -34,17 +36,10 @@ if($nombre == ""){
 $aeronave= new Aeronave;
 $aeronave->conn();
 
-/*$n = $nave_nodriza->get_id($nombre); //VERIFICAR SI EXISTE
-if ($n == "None"){
-	$nave_nodriza->insert($nombre);
-	echo "<div class='alert alert-success'><a href='#' class='alert-link'>La Nave Nodriza ' $nombre ' ha sido agregada exitosamente.</a></div>";
-}
-else{
-	echo "<div class='alert alert-danger'><a href='#' class='alert-link'>La Nave Nodriza ' $nombre ' ya existe.</a></div>";
-}*/
+$aeronave->insert($capacidad,$origen,$destino,1,$fecha_origen,$fecha_destino);
+echo "<div class='alert alert-success'><a href='#' class='alert-link'>La Aeronave ha sido agregada exitosamente.</a></div>"; 
 
-$aeronave->insert($capacidad,$origen,$destino,0,$fecha_origen,$fecha_destino);
-echo "<div class='alert alert-success'><a href='#' class='alert-link'>La Aeronave ' $nombre ' ha sido agregada exitosamente.</a></div>"; 
+
 ?>
   
 

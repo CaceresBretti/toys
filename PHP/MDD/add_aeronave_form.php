@@ -48,8 +48,8 @@ function comprobarNodrizas(){
     		<br>Origen de la Nave Nodriza: &nbsp;&nbsp;&nbsp;<?php $nave_nodriza->get_listar(2); ?><br>
 			<br>Destino de la Nave Nodriza:&nbsp;&nbsp;<?php $nave_nodriza_d->get_listar(3); ?><br>
 		
-			<br><strike>Fecha de vuelo:</strike> <input type="date" min="<?php echo $today; ?>" max="<?php echo date("Y-m-d", strtotime("$today +7 day")); ?>" name="fecha_origen" ><br>
-			<br><strike>Fecha de llegada:</strike> <input type="date" min="<?php echo date("Y-m-d", strtotime("$today +8 day")); ?>" max="<?php echo $arrive; ?>" name="fecha_llegada"><br>
+			<br><strike>Fecha de vuelo:</strike> <input type="date" min="<?php echo $today; ?>" max="<?php echo date("Y-m-d", strtotime("$today +7 day")); ?>" placeholder="AAAA-MM-DD" name="fecha_origen" ><br>
+			<br><strike>Fecha de llegada:</strike> <input type="date" min="<?php echo date("Y-m-d", strtotime("$today +8 day")); ?>" max="<?php echo $arrive; ?>" name="fecha_destino" placeholder="AAAA-MM-DD" ><br>
 			<br>Hora de vuelo: &nbsp;&nbsp;<input id="exit-time" name="start-time" type="time" /required><br>
 			<br>Hora de llegada: <input id="exit-time" name="end-time" type="time" /required><br>
   	

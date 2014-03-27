@@ -12,7 +12,8 @@
 <!-- END MENU -->
 
 <!-- BEGIN CENTER -->
-
+<center><h3>Adminitrar pasajeros</h3></center>
+<br><br>
 <?php
 $pasajero= new Pasajero;
 $pasajero->conn();

@@ -14,25 +14,20 @@
 <!-- BEGIN CENTER -->
 <?php
 $id=$_GET['id'];
-$nave_nodriza= new NaveNodriza;
-$nave_nodriza->conn();
-$nave_nodriza->get_datos($id);
-
-
-echo "<center><h3>Aeronaves</h3></center>";
-//INVOCAR AERONAVES QUE POSEEAN ID_ORIGEN $id
-$aeronave = new Aeronave;
+$aeronave= new Aeronave;
 $aeronave->conn();
-$aeronave->listar_aeronave_en_nodriza($id);
+$aeronave->get_datos($id);
 
 echo "<br><br>";
-echo "<center><h3>Pasajeros Nave Nodirza</h3></center>";
+echo "<center><h3>Pasajeros</h3></center>";
 //INVOCAR AERONAVES QUE POSEEAN ID_ORIGEN $id
-$tipo_nave=0;
+$tipo_nave=1;
 $pasajero = new Pasajero;
 $pasajero->conn();
 $pasajero->get_pasajeros_nave($id, $tipo_nave);
+
 echo "<br><br>";
+
 ?>
 
 <!-- END CENTER -->

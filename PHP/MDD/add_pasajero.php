@@ -23,9 +23,11 @@ $tipo_nave=0;// 0  El id_nave corresponde a una nodriza y 1 corresponde a una ae
 $pasajero= new Pasajero;
 $pasajero->conn();
 $pasajero->insert($nombre, $id_nave, $ticket, $tipo_nave);
-
-echo "<div class='alert alert-success'><a href='#' class='alert-link'>El Pasajero ' $nombre ' ha sido agregada exitosamente.</a></div>";
-
+echo "<center>";
+echo "<div style=\"width:500\"class='alert alert-success'><a href='#' class='alert-link'>El Pasajero ' $nombre ' ha sido agregada exitosamente.</a></div>";
+echo "<br>";
+echo "<a href=\"add_pasajero_form.php\" class=\"btn btn-primary\" role=\"button\">Volver</a>";
+echo "</center>";
 ?>
 
 
