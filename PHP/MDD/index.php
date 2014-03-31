@@ -20,7 +20,7 @@
             </td>
             <td>
                 <h1>S.N.A.S.A. (Secret Nasa) </h1>
-                <p>Sistema de control de trafico de ovnis</p>
+                <p>Sistema de Gestión de Naves Marcianas</p>
                 <?php 
 		  if(empty($_SESSION['nombre'])){
 		    echo "<p><a href=\"login.php\" class=\"btn btn-primary btn-lg\" role=\"button\">Login</a></p>";

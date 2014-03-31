@@ -16,7 +16,11 @@
 <br><br>
 <?php
 $pasajero= new Pasajero;
+$aeroneve= new Aeronave;
 $pasajero->conn();
+$aeroneve->conn();
+$pasajero->bajar_pasajeros();
+$aeroneve->update_ruta();
 $pasajero->listar_pasajeros();
 ?>
 

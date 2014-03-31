@@ -23,7 +23,11 @@ echo "<center><h3>Pasajeros</h3></center>";
 //INVOCAR AERONAVES QUE POSEEAN ID_ORIGEN $id
 $tipo_nave=1;
 $pasajero = new Pasajero;
+$aeronave = new Aeronave;
 $pasajero->conn();
+$aeronave->conn();
+$pasajero->bajar_pasajeros();
+$aeronave->update_ruta();
 $pasajero->get_pasajeros_nave($id, $tipo_nave);
 
 echo "<br><br>";

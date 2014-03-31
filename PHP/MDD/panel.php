@@ -114,10 +114,26 @@ else{
       <div class="thumbnail">
 	<img style="width:235px" src="images/escaner.jpg" alt="...">
 	<div class="caption">  
-	  <h3>Revisar Aeronave</h3>
-	  <p>Revisar que la aeronave cumpla con el reglamento espacial</p>
-	  <p><a href="#" class="btn btn-primary" role="button">Revisar</a> <a href="#" class="btn btn-default" 
-  role="button">Ver naves listas</a></p>
+	  <h3>Aeronaves Revisadas</h3>
+	  <p>Lista de aeronaves que han sido revisadas</p>
+	  <p> <a href="revisadas.php" class="btn btn-default"   role="button">Ver naves listas</a></p>
+	</div>
+      </div>
+    </div>
+  </div>
+<?php } ?>
+
+
+<?php
+   if ($edo == "1"){ //USUARIO ADMIN
+  ?>
+    <div class="col-sm-6 col-md-4">
+      <div class="thumbnail">
+	<img style="width:165px" src="images/matrix.gif" alt="...">
+	<div class="caption">  
+	  <h3>Historial</h3>
+	  <p>Historial de vuelos</p>
+	  <p><a href="historico.php" class="btn btn-primary" role="button">Ver</a></p>
 	</div>
       </div>
     </div>

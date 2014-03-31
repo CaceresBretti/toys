@@ -1,11 +1,7 @@
 <!-- BEGIN INIT -->
-<?php 
-include ('bdd/sqlite.php');
-include('lib/check.php');
-
-?>
+<?php session_start(); ?>
 <?php include('lib/init.php'); ?>
-
+<?php include('bdd/sqlite.php'); ?>
 <!-- END INIT -->
 
 <!-- BEGIN MENU  -->
@@ -15,19 +11,13 @@ include('lib/check.php');
 <!-- END MENU -->
 
 <!-- BEGIN CENTER -->
-<center>
+
 <?php
-	echo "<label for='exampleInputEmail1'>Lista de Aeronaves</label><br><br>";
-
-	$aeronave= new Aeronave;
-	$aeronave->conn();
-	$aeronave->update_ruta();
-	$aeronave->listar_aeronave();
-
-	echo "<br><br>";
-
+  $aeronave= new Aeronave;
+  $aeronave->conn();
+  $aeronave->lista_historico();
 ?>
-</center>
+
 <!-- END CENTER -->
 
 <!-- BEGIN FOOTER -->
@@ -44,4 +34,3 @@ include('lib/check.php');
 <!-- END BOOTSTRAP -->
 
 </html>
- 

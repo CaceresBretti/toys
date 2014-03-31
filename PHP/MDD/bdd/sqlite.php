@@ -1,5 +1,5 @@
 <?php
-
+//error_reporting(E_ERROR);
 /**
 * @Conexion con la Base de datos
 */
@@ -278,6 +278,56 @@ class Aeronave{
     $this->DB->close();
   }
   
+  
+  //Setea la ida y vuelata de una aeronave desde origen a destino
+  function update_ruta(){
+    try{
+      $query = "select * from aeronave";
+      $result = $this->DB->query($query);
+      while ($res = $result->fetchArray(SQLITE3_ASSOC)){
+      	  $edo=$this->check_regitro($res['id'],$res['limite_pasajeros'], $res['id_nave_origen'], $res['id_nave_destino'], $res['id_estado'], $res['fecha_origen'], $res['fecha_destino']);
+	  //echo $res['id']." / $edo <br>";
+	  if($edo ==0){
+	    $this->historico($res['id']);
+	    $this->insert_aeronave_historico($res['id'], $res['limite_pasajeros'], $res['id_nave_origen'], $res['id_nave_destino'], $res['id_estado'], $res['fecha_origen'], $res['fecha_destino']);
+	  }
+	    
+	    
+	    $date=date('H:m:s');
+	    //echo $res['id']."-<b>date:</b> $date / <b>fecha destino</b>".$res['fecha_destino']."<br>";
+	    $fecha_destino=$res['fecha_destino'];
+	    $fecha_origen=$res['fecha_origen'];
+	    $edo=0;
+	    if($fecha_destino > "12:00:00" && $date < "12:00:00"){
+	      $edo=1;
+	    }
+	    //echo "$date | $fecha_destino - $edo<br>";
+	    if($date > $fecha_destino || $edo==1){
+		  //echo "entro<br>";
+	          $destino=$res['id_nave_destino'];
+	          $origen=$res['id_nave_origen'];
+		  $this->update_id_nave_origen($res['id'], $destino);
+		  $this->update_id_nave_destino($res['id'], $origen);
+		  $hor=rand(1, 12);
+		  //echo ""
+		  $new_date_origen=date("H:m:s", strtotime("$date +$hor hours"));
+		  $new_date_destino=date("H:m:s", strtotime("$new_date_origen +1 hours"));
+		  //echo "<font color=\"red\">$new_date_destino</font><br>";
+		  $this->update_fecha_origen($res['id'], $new_date_origen);
+		  $this->update_fecha_destino($res['id'], $new_date_destino);
+		  
+	    }
+	    if($date > $fecha_origen && $date < $fecha_destino){
+		  $this->update_id_estado($res['id'], 2);
+	    }
+      }
+    }
+    catch (Exception $e){
+        echo $e->getMessage();
+    }
+    //$this->DB->close();
+  }
+  
   function get_id_nave_destino($id){
     try{
       $query = "select id_nave_destino from aeronave where id=$id";
@@ -390,25 +440,28 @@ class Aeronave{
             die("Database transaction failed: " . $this->DB->lastErrorMsg() );
         }
 	  $ticket="N$id_nave@".rand(0, 500);
-	  $query3 =  $this->DB->exec("update pasajero set ticket='$ticket' where id=$id_pasajero;");
-	  if (!$query3) {
-	      die("Database transaction failed: " . $this->DB->lastErrorMsg() );
+	  $coin = rand(0, 100);
+	  if ($coin < 75){ // un 25 % que no tenga un ticket valido
+	    $query3 =  $this->DB->exec("update pasajero set ticket='$ticket' where id=$id_pasajero;");
+	    if (!$query3) {
+		die("Database transaction failed: " . $this->DB->lastErrorMsg() );
+	    }
 	  }
 	  echo "<center>";
 	  echo "<div style=\"width:500\" class='alert alert-success'><a href='#' class='alert-link'>El Pasajero esta en la Aeronave!.</a></div>";
-	  echo "<a href=\"add_pasajero_form.php\" class=\"btn btn-primary\" role=\"button\">Volver</a>";
+	  echo "<a href=\"panel.php\" class=\"btn btn-primary\" role=\"button\">Volver</a>";
 	  echo "</center>";
     $this->DB->close();
     }
   }  
   
-	function listar_aeronave(){
+  function listar_aeronave(){
         try{
             //$result = $this->DB->query("select * from aeronave order by id_nave_origen;");          
 			$result = $this->DB->query("select aeronave.id as id, limite_pasajeros, a.nombre as origen, b.nombre as destino, fecha_origen, fecha_destino from aeronave JOIN nave_nodriza as a ON id_nave_origen = a.id JOIN nave_nodriza as b ON id_nave_destino = b.id order by aeronave.id;");          
 			
 			echo "<center><table style=\"width:600px\" class=\"table table-striped\">";
-		    echo "<tr><td><b> ID </b></td> <td><b> Capacidad </b> <td><b>Origen</b></td> <td><b>Destino</b></td> <td><b> Fecha de origen </b> <td><b> Fecha de llegada</b> </td></tr> ";
+		    echo "<tr><td><b> Nombre </b></td> <td><b> Capacidad </b> <td><b>Origen</b></td> <td><b>Destino</b></td> <td><b> Fecha de origen </b> <td><b> Fecha de llegada</b> </td></tr> ";
 		    while ($res = $result->fetchArray(SQLITE3_ASSOC)){
 			$id = $res['id'];
 			$capacidad = $res['limite_pasajeros'];
@@ -482,7 +535,7 @@ class Aeronave{
 
   }
   
-	function listar_aeronave_en_nodriza($id_nodriza){
+  function listar_aeronave_en_nodriza($id_nodriza){
         try{
             $result = $this->DB->query("select * from aeronave where id_nave_origen='$id_nodriza' AND id_estado='1' order by id;");          
 			
@@ -514,13 +567,207 @@ class Aeronave{
         }
     $this->DB->close();
   }
+  
+  
+  function insert_aeronave_historico($id, $limite_pasajeros, $id_nave_origen, $id_nave_destino, $id_estado, $fecha_origen, $fecha_destino){
+    $edo = $this->check_regitro($id, $limite_pasajeros, $id_nave_origen, $id_nave_destino, $id_estado, $fecha_origen, $fecha_destino);
+    if($edo==0){
+      //echo "INSERTO -";
+      $query =  $this->DB->exec("INSERT INTO aeronave_historico(id_aeronave, limite_pasajeros, id_nave_origen, id_nave_destino, id_estado, fecha_origen, fecha_destino) VALUES ($id, $limite_pasajeros, $id_nave_origen, $id_nave_destino, $id_estado, '$fecha_origen', '$fecha_destino');");
+      if (!$query) {
+            die("Database transaction failed: " . $this->DB->lastErrorMsg() );
+        }
+    }
+  }
+  
+  
+  function check_regitro($id, $limite_pasajeros, $id_nave_origen, $id_nave_destino, $id_estado, $fecha_origen, $fecha_destino){
+      if($fecha_destino!=""){
+	$query = "select count (*) as num from aeronave_historico where id_aeronave=$id and limite_pasajeros=$limite_pasajeros and id_nave_origen=$id_nave_origen and id_nave_destino=$id_nave_destino and id_estado=$id_estado and fecha_origen='$fecha_origen' and fecha_destino='$fecha_destino';";
+	//echo "<br><br>$query<br>";
+	$result = $this->DB->query($query);
+	if ($res = $result->fetchArray(SQLITE3_ASSOC)){
+	    //echo "NUM: ".$res['num']."<br>";
+	    return $res['num'];   
+	}
+	else{
+	    return 0;
+	}
+      }
+  }
+  
+  
+  function ver_historico($file){
+      $historico=fopen("historico/$file.txt",'r');
+      while(!feof($historico)){
+	  $linea=fgets($historico);
+	  echo "$linea\n";
+	}
+  }
+  
+  function lista_historico(){
+	$query = "select * from aeronave_historico;";
+        $result = $this->DB->query($query);
+        echo "<table class=\"table table-hover\">";
+        echo "<tr>";
+	  echo "<td><b>ID Registro</b></td><td><b>ID Aeronave</b></td><td><b>Limite Pasajeros</b></td><td><b>Nave Origen</b></td><td><b>Nave Destino</b></td><td><b>Fecha Oringen</b></td><td><b>Fecha Destino</b></td>";
+	echo "</tr>";
+        while ($res = $result->fetchArray(SQLITE3_ASSOC)){
+	   echo "<tr>";
+	    echo "<td>".$res['id']."</td>";
+	    echo "<td>".$res['id_aeronave']."</td>";
+	    echo "<td>".$res['limite_pasajeros']."</td>";
+	    $query1 = "select nave_nodriza.nombre from nave_nodriza where nave_nodriza.id=".$res['id_nave_origen'].";";
+	    $result1 = $this->DB->query($query1);
+	    if ($res1 = $result1->fetchArray(SQLITE3_ASSOC)){
+		    echo "<td>".$res1['nombre']."</td>";
+	    }
+	    $query2 = "select nave_nodriza.nombre from nave_nodriza where nave_nodriza.id=".$res['id_nave_destino'].";";
+	     $result2 = $this->DB->query($query2);
+	    if ($res2 = $result2->fetchArray(SQLITE3_ASSOC)){
+		    echo "<td>".$res2['nombre']."</td>";
+	    }
+	    echo "<td>".$res['fecha_origen']."</td>";
+	    echo "<td>".$res['fecha_destino']."</td>";
+	   echo "<tr>";
+        }
+        echo "</table>";
+  }
+  
+  function lista_naves_revisadas(){
+        $query = "select * from historico;";
+        $result = $this->DB->query($query);
+        echo "<table class=\"table table-hover\">";
+        echo "<tr>";
+	  echo "<td><b>ID Registro</b></td><td><b>ID Aeronave</b></td><td><b>Fecha</b></td><td><b>Ver</b></td>";
+	echo "</tr>";
+        while ($res = $result->fetchArray(SQLITE3_ASSOC)){
+	   echo "<tr>";
+	    echo "<td>".$res['id']."</td>";
+	    echo "<td>".$res['id_nave']."</td>";
+	    echo "<td>".$res['fecha']."</td>";
+	    echo "<td><a href=\"ver_historico.php?&file=".$res['file']."\" class=\"btn btn-primary\" role=\"button\">Ver Registro</a></td>";
+	   echo "<tr>";
+        }
+        echo "</table>";
+  }
+  
+  function historico($id_aeronave){
+	error_reporting(E_ERROR);
+	$date=date('Y-m-d H:m:s');
+	$cont=0;
+	$fp;
+        $query = "select * from pasajero where id_nave=$id_aeronave and tipo_nave=1";
+        $result = $this->DB->query($query);
+        while ($res = $result->fetchArray(SQLITE3_ASSOC)){
+          //Valida que el historico no este repetido
+	  //$edo=$this->check_regitro($res['limite_pasajeros'], $res['id_nave_origen'], $res['id_nave_destino'], $res['id_estado'], $res['fecha_origen'], $res['fecha_destino']);
+	  //echo $res['id']." / $edo <br>";
+	  //if($edo ==0){
+	    if($cont ==0){
+		$file=$this->file_name();
+		$this->insert_historico($file, $id_aeronave);
+	  	shell_exec("historico/$file.txt");
+		$fp = fopen("historico/$file.txt","a");
+		fwrite($fp,"<center><h3>Historico Nave</h3></center>".PHP_EOL);
+	    	fwrite($fp,"<center>".PHP_EOL);
+	    	fwrite($fp,"<table style=\"width:600px\" class=\"table table-hover\">".PHP_EOL);
+	    	fwrite($fp,"<tr>".PHP_EOL);
+		  fwrite($fp,"<td><b>ID Revisi&oacute;n :</b></td><td>$file</td>".PHP_EOL);
+	    	fwrite($fp,"</tr>".PHP_EOL);
+	    	fwrite($fp,"<tr>".PHP_EOL);
+		  fwrite($fp,"<td><b>Nombre Revisor :</b></td><td>Camilo</td>".PHP_EOL);
+	    	fwrite($fp,"</tr>".PHP_EOL);
+	    	fwrite($fp,"<tr>".PHP_EOL);
+		  fwrite($fp,"<td><b>ID Aeronave :</b></td><td>".$res['id_nave']."</td>".PHP_EOL);
+	    	fwrite($fp,"</tr>".PHP_EOL);
+	    	fwrite($fp,"<tr>".PHP_EOL);
+		  fwrite($fp,"<td><b>Fecha Revisi&oacute;n :</b></td><td>$date</td>".PHP_EOL);
+		fwrite($fp,"</tr>".PHP_EOL);
+		fwrite($fp,"<tr>".PHP_EOL);
+		$query1 = "select nave_nodriza.nombre from nave_nodriza, aeronave where aeronave.id=".$res['id_nave']." and nave_nodriza.id=aeronave.id_nave_origen;";
+		$result1 = $this->DB->query($query1);
+		if ($res1 = $result1->fetchArray(SQLITE3_ASSOC)){
+		    fwrite($fp,"<td><b>Origen :</b></td><td>".$res1['nombre']."</td>".PHP_EOL);
+		}
+		fwrite($fp,"</tr>".PHP_EOL);
+		fwrite($fp,"<tr>".PHP_EOL);
+		$query2 = "select nave_nodriza.nombre from nave_nodriza, aeronave where aeronave.id=".$res['id_nave']." and nave_nodriza.id=aeronave.id_nave_destino;";
+		$result2 = $this->DB->query($query2);
+		if ($res2 = $result2->fetchArray(SQLITE3_ASSOC)){
+		    fwrite($fp,"<td><b>Destino :</b></td><td>".$res2['nombre']."</td>".PHP_EOL);
+		}
+		$query3 = "select * from aeronave where id=".$res['id_nave'].";";
+		$result3 = $this->DB->query($query3);
+		if ($res3 = $result2->fetchArray(SQLITE3_ASSOC)){
+		    fwrite($fp,"<td><b>Maximo Pasajeros :</b></td><td>".$res3['limite_pasajeros']."</td>".PHP_EOL);
+		    fwrite($fp,"<td><b>Fecha Origen :</b></td><td>".$res3['fecha_origen']."</td>".PHP_EOL);
+		    fwrite($fp,"<td><b>Fecha Destino :</b></td><td>".$res3['fecha_destino']."</td>".PHP_EOL);
+		}
+		fwrite($fp,"</tr>".PHP_EOL);
+		fwrite($fp,"</table >".PHP_EOL);
+		fwrite($fp,"</center>".PHP_EOL);
+		fwrite($fp,"<br><br><center><h3>Pasajeros</h3></center>".PHP_EOL);
+		
+	    }
+	    fwrite($fp,"<center>".PHP_EOL);
+	    fwrite($fp,"<table style=\"width:600px\" class=\"table table-hover\">".PHP_EOL);
+	    fwrite($fp,"<tr>".PHP_EOL);
+	    $edo = $this->check_ticket($res['id_nave'], $res['ticket']);
+	    fwrite($fp,"<td>".$res['id']."</td><td>".$res['nombre']."</td><td>".$res['ticket']."</td><td>$edo</td>".PHP_EOL);
+	    fwrite($fp,"</tr>".PHP_EOL);
+	    fwrite($fp,"</table>".PHP_EOL);
+	    fwrite($fp,"</center>".PHP_EOL);
+	  //}
+	  $cont++;
+	 }
+  }
+  
+  function check_ticket($id_vuelo, $ticket){
+	//$string=array("0", "1");
+	$string=array();
+	//echo "TIKET : $ticket<br>";
+	if ($ticket !="0"){
+	  //echo "No es cero<br>";
+	  $string=explode("@", $ticket);
+	}
+	else{
+	    array_push($string,"0");
+	}
+
+        $ident="N$id_vuelo";
+	//echo "string 0 : ".$string[0]."| $ident<br>";
+        if ($string[0] == $ident){
+	    //echo "son iguales<b>";
+	    return "<font color =\"green\">Ticket Valido</font>";
+        }
+        else{
+	    return "<font color=\"red\">Ticket No Valido</font>";
+        }
+  }
+  
+  function file_name(){
+        $query = "select count(*)  as contador from historico";
+        $result = $this->DB->query($query);
+        if ($res = $result->fetchArray(SQLITE3_ASSOC)){  
+	    return $res['contador'];
+        }
+  }
+  
+  function insert_historico($file, $id_nave){
+    $date=date('Y-m-d H:m:s');
+    $sql="INSERT INTO historico (file, id_nave, fecha) values ('$file', $id_nave, '$date');";
+    $query =  $this->DB->exec($sql);
+    if (!$query) {
+            die("Database transaction failed: " . $this->DB->lastErrorMsg() );
+    }
+  }
 
   function delete($id){
     $query =  $this->DB->exec("DELETE FROM aeronave WHERE id='$id';");
-        /*if (!$query) {
+    if (!$query) {
             die("Database transaction failed: " . $this->DB->lastErrorMsg() );
-        }*/
-    $this->DB->close();
+    }
   } 
 
   function listar_form_delete(){
@@ -563,7 +810,7 @@ class Aeronave{
         if (!$query) {
             die("Database transaction failed: " . $this->DB->lastErrorMsg() );
         }
-        $this->DB->close();
+        //$this->DB->close();
 
     }
 
@@ -572,7 +819,7 @@ class Aeronave{
         if (!$query) {
             die("Database transaction failed: " . $this->DB->lastErrorMsg() );
         }
-        $this->DB->close();
+        //$this->DB->close();
 
     }
 
@@ -581,7 +828,7 @@ class Aeronave{
         if (!$query) {
             die("Database transaction failed: " . $this->DB->lastErrorMsg() );
         }
-        $this->DB->close();
+        //$this->DB->close();
     }
 
     function update_id_estado($id, $id_estado){
@@ -589,7 +836,7 @@ class Aeronave{
         if (!$query) {
             die("Database transaction failed: " . $this->DB->lastErrorMsg() );
         }
-        $this->DB->close();
+        //$this->DB->close();
     }
 
     function update_fecha_origen($id, $fecha_origen){
@@ -597,7 +844,7 @@ class Aeronave{
         if (!$query) {
             die("Database transaction failed: " . $this->DB->lastErrorMsg() );
         }
-        $this->DB->close();
+        //$this->DB->close();
     }
 
     function update_fecha_destino($id, $fecha_destino){
@@ -605,7 +852,7 @@ class Aeronave{
         if (!$query) {
             die("Database transaction failed: " . $this->DB->lastErrorMsg() );
         }
-        $this->DB->close();
+        //$this->DB->close();
     }
 }
 
@@ -831,6 +1078,39 @@ class Pasajero{
     $this->DB->close();
   }
 
+  function bajar_pasajeros(){
+    try{
+      $query_ = "select id from pasajero";
+      $result_ = $this->DB->query($query_);
+      while ($res_ = $result_->fetchArray(SQLITE3_ASSOC)){
+	$id_pasajero=$res_['id'];
+	$query = "select aeronave.fecha_destino, aeronave.id_nave_destino from aeronave, pasajero where pasajero.id_nave=aeronave.id and pasajero.id=$id_pasajero";
+	$result = $this->DB->query($query);
+	if ($res = $result->fetchArray(SQLITE3_ASSOC)){
+	  $fecha=date('H:m:s');
+	  if ($fecha > $res['fecha_destino']){
+	    $coin=rand(0, 100); //Probabilidad de que se baje de la aeronave
+	    //90% de probabilidad de que se baje del avion 
+	    if($coin > 96){
+	      $this->update_id_nave($id_pasajero, $res['id_nave_destino']);
+	      $coin2 = rand(0, 100);
+	      if($coin2 < 60){ // 40% de prob q mantenga el antiguo ticket
+		$this->update_ticket($id_pasajero, "0");
+	      }
+	      $this->update_tipo_nave($id_pasajero, 0);
+	    }
+	  }
+	}
+      }
+    }
+    catch (Exception $e){
+	    echo $e->getMessage();
+    }
+  }
+  
+  
+  
+  
   //Retorna el id de alguna aeronave (para saber en q nave esta el pasajero)
   function get_id_nave($id){//id del pasajero
     try{
@@ -855,7 +1135,7 @@ class Pasajero{
       echo "<td><b>ID</b></td>";
       echo "<td><b>Nombre</b></td>";
       echo "<td><b>ID Aeronave</b></td>";
-      echo "<td><b>Tiket</b></td>";
+      echo "<td><b>Ticket</b></td>";
       echo "<td><b>Tipo Nave</b></td>";
       echo "<td><b>Tomar Vuelo</b></td>";
     echo "</tr>";
@@ -908,8 +1188,10 @@ class Pasajero{
   }
     //Lista de TODOS los pasajeros
    function listar_pasajeros(){
+	//$this->bajar_pasajeros();
         try{
-            $result = $this->DB->query("select * from pasajero order by id DESC");          
+	    $query="select * from pasajero order by id DESC;";
+            $result = $this->DB->query($query);         
 			
 		echo "<center><table style=\"width:650px\" class=\"table table-striped\">";
 		echo "<tr><td><b> ID </b></td> <td><b> Nombre</b> </td><td><b>Nave</b></td><td><b>Tipo Nave</b></td><td><b>Ticket</b></td><td><b>Borrar</b></td><td><b>Tomar Vuelo</b></td></tr> ";
@@ -918,7 +1200,8 @@ class Pasajero{
 			echo "<tr>";
 			echo "<td>".$res['id']." </td>"; 
 			echo "<td>".$res['nombre']."</td>";
-			echo "<td>".$res['id_nave']."</td>";
+			echo "<td><a href='ver_aeronave.php?id=".$res['id_nave']."'>".$res['id_nave']."</a></td>";
+			
 		
 			if($res['tipo_nave']==0){
 			  echo "<td>Nodriza - ";
@@ -935,7 +1218,7 @@ class Pasajero{
 			}
 		
 			echo "<td>".$res['ticket']."</td>";
-			echo "<td><a href=\"del_pasajero.php\" class=\"btn btn-danger\" role=\"button\">Borrar</a></td>";
+			echo "<td><a href=\"del_pasajero.php?&id=".$res['id']."\" class=\"btn btn-danger\" role=\"button\">Borrar</a></td>";
 			if($res['tipo_nave']==0){
 			 echo "<td><a href=\"tomar_vuelo.php?id=".$res['id_nave']."&pj=".$res['id']."\" class=\"btn btn-default\" role=\"button\">Tomar Vuelo</a></td>";
 			}
@@ -970,25 +1253,35 @@ class Pasajero{
             echo $e->getMessage();
         }
     $this->DB->close();
-  } function update_ticket($id, $ticket){
-        $query =  $this->DB->exec("update pasajero set ticket=$ticket where id=$id;");
+  } 
+  
+  function update_ticket($id, $ticket){
+        $query =  $this->DB->exec("update pasajero set ticket='$ticket' where id=$id;");
         if (!$query) {
             die("Database transaction failed: " . $this->DB->lastErrorMsg() );
         }
-        $this->DB->close();
-    }
+       // $this->DB->close();
+   }
 
-    function update_id_nave($id, $id_nave){
-        $pass = sha1($passwd);
-        $query =  $this->DB->exec("update pasajero set id_nave='$id_nave' where id=$id;");
+  function update_id_nave($id, $id_nave){
+        $query =  $this->DB->exec("update pasajero set id_nave=$id_nave where id=$id;");
         if (!$query) {
             die("Database transaction failed: " . $this->DB->lastErrorMsg() );
         }
-        $this->DB->close();
+        //$this->DB->close();
     }
     
+  function update_tipo_nave($id, $tipo_nave){
+        $query =  $this->DB->exec("update pasajero set tipo_nave=$tipo_nave where id=$id;");
+        if (!$query) {
+            die("Database transaction failed: " . $this->DB->lastErrorMsg() );
+        }
+        //$this->DB->close();
+    }
 
-    function insert($nombre, $id_nave, $ticket, $tipo_nave){
+    
+    
+  function insert($nombre, $id_nave, $ticket, $tipo_nave){
     $query =  $this->DB->exec("insert into pasajero(nombre, id_nave, ticket, tipo_nave) values ('$nombre', $id_nave, '$ticket', $tipo_nave)");
         if (!$query) {
             die("Database transaction failed: " . $this->DB->lastErrorMsg() );
@@ -996,7 +1289,19 @@ class Pasajero{
     $this->DB->close();
   }
 
-    
+  function delete($id){
+    $query =  $this->DB->exec("delete from pasajero where id=$id");
+    echo "<center>";
+    echo "<div style=\"width:500\"class='alert alert-success'>";
+    echo "<a href='#' class='alert-link'>El Pasajero se ha barrado con exito!.</a>";
+    echo "</div>";
+    echo "<br><a href=\"pasajeros.php\" class=\"btn btn-primary\" role=\"button\">Volver</a>";
+    echo "</center>";
+        if (!$query) {
+            die("Database transaction failed: " . $this->DB->lastErrorMsg() );
+        }
+    $this->DB->close();
+  }
 }
 
 ?>

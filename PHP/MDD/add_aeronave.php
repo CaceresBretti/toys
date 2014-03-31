@@ -4,13 +4,17 @@
 include ('bdd/sqlite.php');
 include('lib/check.php');
 
-$today = date("Y-m-d");
+//$today = date("Y-m-d");
 
 $capacidad=$_POST['capacidad'];
 $origen=$_POST['origen'];
 $destino=$_POST['destino'];
-$fecha_origen=$today . " " . $_POST['start-time'].":00";
-$fecha_destino=$today . " " . $_POST['end-time'].":00";
+$hora_origen=$_POST['start-time'];
+$hora_destino = date("H:i", strtotime("$hora_origen +1 minute"));
+
+//$hora_destino=$_POST['start-time'].":15";
+//$fecha_origen=$today . " " . $_POST['start-time'].":00";
+//$fecha_destino=$today . " " . $_POST['end-time'].":00";
 
 
 if($capacidad == ""){
@@ -35,8 +39,8 @@ if($capacidad == ""){
 
 $aeronave= new Aeronave;
 $aeronave->conn();
-
-$aeronave->insert($capacidad,$origen,$destino,1,$fecha_origen,$fecha_destino);
+//echo "Capacidad: $capacidad - Origen: $origen - Destino: $destino - 1 - Hora $hora_origen - Destino $hora_destino ";
+$aeronave->insert($capacidad,$origen,$destino,1,$hora_origen,$hora_destino);
 echo "<div class='alert alert-success'><a href='#' class='alert-link'>La Aeronave ha sido agregada exitosamente.</a></div>"; 
 
 
