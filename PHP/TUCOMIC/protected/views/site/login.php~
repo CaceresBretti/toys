@@ -1,0 +1,166 @@
+<?php
+/* @var $this SiteController */
+/* @var $model LoginForm */
+/* @var $form CActiveForm  */
+
+$this->pageTitle=Yii::app()->name . ' - Login';
+$this->breadcrumbs=array(
+	'Login',
+);
+
+
+/*
+$user=array('username' => 'test', 'password' => '123');
+$identity=new UserIdentity($user->username,$user->password);
+$identity->authenticate();
+Yii::app()->user->login($identity,0);
+*/
+
+// UserIdentity is your extended class of CUserIdentity
+/*
+$userId="l30";
+$pwd="admin";
+
+$identity=new UserIdentity($userId, $pwd);
+$identity->authenticate();
+if ($identity->errorCode == UserIdentity::ERROR_NONE)
+{
+        $duration= 3600*24*30; // 30 days
+        Yii::app()->user->login($identity,$duration);
+        $this->redirect("index.php?r=site");
+}
+else
+{
+        // went south, // error processing
+	echo "error";
+}
+*/
+?>
+
+<h1>Login</h1>
+
+<p>Please fill out the following form with your login credentials:</p>
+
+<p><fb:login-button autologoutlink="true"></fb:login-button></p>
+<script>
+
+	var user_face;
+
+  window.fbAsyncInit = function() {
+
+    FB.init({
+      appId      : '164350930421515', // App ID
+     // channelUrl : 'localhost/index.html', // Channel File
+      status     : true, // check login status
+      cookie     : true, // enable cookies to allow the server to access the session
+      xfbml      : true  // parse XFBML
+    });
+
+
+  FB.Event.subscribe('auth.authResponseChange', function(response) {
+    // Here we specify what we do with the response anytime this event occurs. 
+    if (response.status === 'connected') {
+      // The response object is returned with a status field that lets the app know the current
+      // login status of the person. In this case, we're handling the situation where they 
+      // have logged in to the app.
+
+      testAPI();
+    } else if (response.status === 'not_authorized') {
+      // In this case, the person is logged into Facebook, but not into the app, so we call
+      // FB.login() to prompt them to do so. 
+      // In real-life usage, you wouldn't want to immediately prompt someone to login 
+      // like this, for two reasons:
+      // (1) JavaScript created popup windows are blocked by most browsers unless they 
+      // result from direct interaction from people using the app (such as a mouse click)
+      // (2) it is a bad experience to be continually prompted to login upon page load.
+
+      FB.login();
+    alert("2");
+    } else {
+      // In this case, the person is not logged into Facebook, so we call the login() 
+      // function to prompt them to do so. Note that at this stage there is no indication
+      // of whether they are logged into the app. If they aren't then they'll see the Login
+      // dialog right after they log in to Facebook. 
+      // The same caveats as above apply to the FB.login() call here.
+      FB.login();
+    }
+    var uid = response.name;
+    FB.api('/me', function(response) {
+       alert('Your name is ' + response.name);
+    });
+  });
+  };
+
+  // Load the SDK asynchronously
+  (function(d){
+     var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
+     if (d.getElementById(id)) {return;}
+     js = d.createElement('script'); js.id = id; js.async = true;
+     js.src = "//connect.facebook.net/en_US/all.js";
+     ref.parentNode.insertBefore(js, ref);
+   }(document));
+
+  // Here we run a very simple test of the Graph API after login is successful. 
+  // This testAPI() function is only called in those cases. 
+  function testAPI() {
+    console.log('Welcome!  Fetching your information.... ');
+    FB.api('/me', function(response) {
+      console.log('Good to see you, ' + response.name + '.');
+    });
+  }
+
+  function getUser(){
+	var User;
+	FB.api('/me', function(response) {
+	//alert(response.name);
+        User = response.name;
+        //return 'h';
+ 	});
+   return $User;
+  }
+</script>
+<fb:login-button show-faces="true" width="200" max-rows="1"></fb:login-button>
+
+
+<br><br>
+<div class="form">
+<?php $form=$this->beginWidget('CActiveForm', array(
+	'id'=>'login-form',
+	'enableClientValidation'=>true,
+	'clientOptions'=>array(
+		'validateOnSubmit'=>true,
+	),
+));
+
+$variablephp = "<script> getUser(); </script>";
+echo "variablephp = $variablephp";
+?>
+	<p class="note">Fields with <span class="required">*</span> are required.</p>
+
+	<div class="row">
+		<?php echo $form->labelEx($model,'username'); ?>
+		<?php echo $form->textField($model,'username'); ?>
+		<?php echo $form->error($model,'username'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->labelEx($model,'password'); ?>
+		<?php echo $form->passwordField($model,'password'); ?>
+		<?php echo $form->error($model,'password'); ?>
+		<p class="hint">
+			Hint: You may login with <kbd>demo</kbd>/<kbd>demo</kbd> or <kbd>admin</kbd>/<kbd>admin</kbd>.
+		</p>
+	</div>
+
+	<div class="row rememberMe">
+		<?php echo $form->checkBox($model,'rememberMe'); ?>
+		<?php echo $form->label($model,'rememberMe'); ?>
+		<?php echo $form->error($model,'rememberMe'); ?>
+	</div>
+
+	<div class="row buttons">
+		<?php echo CHtml::submitButton('Login'); ?>
+	</div>
+
+<?php $this->endWidget(); ?>
+</div><!-- form -->

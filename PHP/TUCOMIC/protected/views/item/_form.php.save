@@ -1,0 +1,109 @@
+<?php
+/* @var $this ItemController */
+/* @var $model Item */
+/* @var $form CActiveForm */
+?>
+
+<div class="form">
+
+<?php $form=$this->beginWidget('CActiveForm', array(
+	'id'=>'item-form',
+	// Please note: When you enable ajax validation, make sure the corresponding
+	// controller action is handling ajax validation correctly.
+	// There is a call to performAjaxValidation() commented in generated controller code.
+	// See class documentation of CActiveForm for details on this.
+	'enableAjaxValidation'=>false,
+)); ?>
+
+	<p class="note">Fields with <span class="required">*</span> are required.</p>
+
+	<?php echo $form->errorSummary($model); ?>
+
+	<div class="row">
+		<?php echo $form->labelEx($model,'nombre'); ?>
+		<?php echo $form->textArea($model,'nombre',array('rows'=>6, 'cols'=>50)); ?>
+		<?php echo $form->error($model,'nombre'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->labelEx($model,'editorial'); ?>
+		<?php echo $form->textArea($model,'editorial',array('rows'=>6, 'cols'=>50)); ?>
+		<?php echo $form->error($model,'editorial'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->labelEx($model,'precio'); ?>
+		<?php echo $form->textField($model,'precio'); ?>
+		<?php echo $form->error($model,'precio'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->labelEx($model,'escritor'); ?>
+		<?php echo $form->textArea($model,'escritor',array('rows'=>6, 'cols'=>50)); ?>
+		<?php echo $form->error($model,'escritor'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->labelEx($model,'dibujante'); ?>
+		<?php echo $form->textArea($model,'dibujante',array('rows'=>6, 'cols'=>50)); ?>
+		<?php echo $form->error($model,'dibujante'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->labelEx($model,'numero'); ?>
+		<?php echo $form->textArea($model,'numero',array('rows'=>6, 'cols'=>50)); ?>
+		<?php echo $form->error($model,'numero'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->labelEx($model,'saga'); ?>
+		<?php echo $form->textArea($model,'saga',array('rows'=>6, 'cols'=>50)); ?>
+		<?php echo $form->error($model,'saga'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->labelEx($model,'genero'); ?>
+		<?php echo $form->textArea($model,'genero',array('rows'=>6, 'cols'=>50)); ?>
+		<?php echo $form->error($model,'genero'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->labelEx($model,'idioma'); ?>
+		<?php echo $form->textArea($model,'idioma',array('rows'=>6, 'cols'=>50)); ?>
+		<?php echo $form->error($model,'idioma'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->labelEx($model,'estado'); ?>
+		<?php /*echo $form->textField($model,'estado');*/ ?>
+  		<?php echo $form->dropDownList($model,'estado',Estados::model()->getEstados()); ?>
+		<?php echo $form->error($model,'estado'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->labelEx($model,'condicion'); ?>
+		<?php /*echo $form->textArea($model,'condicion',array('rows'=>6, 'cols'=>50));*/ ?>
+		<?php echo $form->dropDownList($model,'condicion',Condicion::model()->getCondiciones()); ?>
+		<?php echo $form->error($model,'condicion'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->labelEx($model,'id_ser'); ?>
+		<?php /*echo $form->textField($model,'id_ser');*/ ?>
+		<?php echo $form->hiddenField($model,'id_', array('value'=>$bandax->id)); ?>
+		<?php echo $form->error($model,'id_ser'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->labelEx($model,'edo_foto'); ?>
+		<?php echo $form->textField($model,'edo_foto'); ?>
+		<?php echo $form->error($model,'edo_foto'); ?>
+	</div>
+
+	<div class="row buttons">
+		<?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save'); ?>
+	</div>
+
+<?php $this->endWidget(); ?>
+
+</div><!-- form -->

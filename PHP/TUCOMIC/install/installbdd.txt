@@ -1,0 +1,9 @@
+REALIZA ESTO CON EL USARIO POSTGRES
+
+EXPORTAR BASE DE DATOS 
+
+ pg_dump dbname -U username > dump.sql
+
+IMPORTAR BASE DE DATOS
+
+psql -U postgres -d pruebaBD -f backup.sql
