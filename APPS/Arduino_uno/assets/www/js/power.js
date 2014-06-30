@@ -1,6 +1,6 @@
 function on(){
     var Status = "1"
-    url = "http://192.168.1.116:5000/on"
+    url = "http://192.168.0.2:5000/on"
     data =  {status:Status}
     
     	$.ajax({
@@ -13,10 +13,10 @@ function on(){
                 console.log(xhr.responseText);
             },
             success: function(result) {
-                alert('Like done');
+                alert('Turn On!');
             },
             error: function( req, status, err ) {
-                alert('Error establecer conecxión');
+                alert('Error establecer conexión');
             }
         });
     return false;
@@ -24,7 +24,7 @@ function on(){
 
 function off(){
     var Status = "0"
-    url = "http://192.168.2.116:5000/off"
+    url = "http://192.168.0.2:5000/off"
     data =  {status:Status}
     
     	$.ajax({
@@ -37,10 +37,10 @@ function off(){
                 console.log(xhr.responseText);
             },
             success: function(result) {
-                alert('Like done');
+                alert('Turn Off');
             },
             error: function( req, status, err ) {
-                alert('Error establecer conecxión');
+                alert('Error establecer conexión');
             }
         });
     return false;
