@@ -6,6 +6,7 @@
 ##########################################
 
 import os
+import time
 
 #!flask/bin/python
 from flask import Flask
@@ -13,6 +14,8 @@ from flask import json
 from flask import jsonify
 from flask import request
 from flask import Response
+from datetime import date
+
 
 #DECORADOR HTML LIB
 from datetime import timedelta
@@ -62,23 +65,25 @@ def crossdomain(origin=None, methods=None, headers=None,max_age=21600, attach_to
 
 app = Flask(__name__)
 
+
+
 @app.route('/')
 @app.route('/index')
 def index():
-	return "<br>PANORAMIX WEBSERVER<br>======================<br><br>Hello, World!\n"
+  return "<br>PANORAMIX WEBSERVER<br>======================<br><br>Hello, World!\n"	
 
 @app.route('/')
-@app.route('/up')
-def up():
-        return "Subuendo cortinas"
+@app.route('/on')
+def on():
+  return "Subuendo cortinas"
 
 @app.route('/')
-@app.route('/down')
-def down():
-        return "Bajando Cortinas"
+@app.route('/off')
+def off():
+  return "Bajando Cortinas"
 
 if __name__ == '__main__':
-	port = int(os.environ.get('PORT', 5000))
-        app.debug = True
-    	app.run(host='0.0.0.0', port=port)
+  port = int(os.environ.get('PORT', 5000))
+  app.debug = True
+  app.run(host='0.0.0.0', port=port)
 
