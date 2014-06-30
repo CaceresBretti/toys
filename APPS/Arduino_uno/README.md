@@ -22,7 +22,7 @@ Aplicación para controlar las luces de tu Hogar / Oficina desde tu celular, a d
 
 ## Descargar
 
-...Próximamente
+https://github.com/l30bravo/toys/blob/master/APPS/Arduino_uno/PowerDroid.apk
 
 
 
