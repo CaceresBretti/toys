@@ -1,12 +1,14 @@
 ##########################################
 # 	WEBSERVER ARDUINO		#
-# 	v.1.0				#
-# 	15/06/2014			#
+# 	v.2.0				#
+# 	2/07/2014			#
 # 	leonardo.bravo@mail.udp.cl	#
 ##########################################
 
 import os
 import time
+
+
 
 #!flask/bin/python
 from flask import Flask
@@ -16,6 +18,12 @@ from flask import request
 from flask import Response
 from datetime import date
 
+#ARDUINO
+#import serial
+#import time
+import l
+import h
+  
 
 #DECORADOR HTML LIB
 from datetime import timedelta
@@ -75,12 +83,14 @@ def index():
 @app.route('/')
 @app.route('/on')
 def on():
-  return "Subuendo cortinas"
+  h.turn_on()
+  return "Luces ON"
 
 @app.route('/')
 @app.route('/off')
 def off():
-  return "Bajando Cortinas"
+  l.turn_off()
+  return "Luces OFF"
 
 if __name__ == '__main__':
   port = int(os.environ.get('PORT', 5000))
