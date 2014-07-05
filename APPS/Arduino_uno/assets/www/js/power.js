@@ -1,6 +1,6 @@
 function on(){
     var Status = "1"
-    url = "http://192.168.0.2:5000/on"
+    url = "http://192.168.2.204:5000/on"
     data =  {status:Status}
     
     	$.ajax({
@@ -24,7 +24,7 @@ function on(){
 
 function off(){
     var Status = "0"
-    url = "http://192.168.0.2:5000/off"
+    url = "http://192.168.2.204:5000/off"
     data =  {status:Status}
     
     	$.ajax({
