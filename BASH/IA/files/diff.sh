@@ -1,15 +1,3 @@
-#
-# POR : Leonardo Bravo
-# WEB : http://www.leobravo.cl
-# FECHA : 24/09/2014
-#
-#	CONTADOR DE CLASES PALABRAS SUGERIDAS ERRONEAS (RESPUESTA DE LAS PREGUNTAS 3 Y 4)
-#   -----------------------------------------------------
-#
-#	- CUENTA LAS CLASES DE LAS 26 CATEGORIAS
-#	- CUENTA LAS CALSES DE C/U DE LAS CATEGORIAS
-#
-
 substr() {
 	aux=$(echo "$1" | awk '{split($0,a,"'$2'"); print a[2]}')
 	echo "$aux" | awk '{split($0,a,"'$3'"); print a[1]}'
@@ -17,7 +5,9 @@ substr() {
 }
 
 ls -l | awk {'print $1  $9'} | grep drwxr | sed 's/-x/ /g' | awk {'print $3'} > dir.tmp
-
+person_error_total=0
+location_error_total=0
+organization_error_total=0
 while read dir
 do
 	echo $dir
@@ -67,8 +57,9 @@ do
 	#5) validar si tiene el tag
 	cd ..
 	echo -e "\n">>log_diff.txt
+	echo "#####################################">>log_diff.txt
 	echo "ERRORES :"$file" / "$dir>>log_diff.txt
-	echo "-------">>log_diff.txt
+	echo "#####################################">>log_diff.txt
 	echo -e "\n">>log_diff.txt
 	echo "TOTAL SUGERENCIAS :"$total_sugerencias >> log_diff.txt
 	echo "TOTAL PERSON :"$total_personas >>log_diff.txt
@@ -79,5 +70,19 @@ do
 	echo "ERRORES LOCATION :" $location_error>>log_diff.txt
 	echo "ERRORES ORGANIZATION :" $organization_error>>log_diff.txt
 
+	let person_error_total=person_error_total+person_error
+	let location_error_total=location_error_total+location_error
+	let organization_error_total=organization_error_total+organization_error
+
 done < dir.tmp
+echo -e "\n">>log_diff.txt
+echo -e "\n">>log_diff.txt
+echo "#####################################">>log_diff.txt
+echo "ERRORES TOTALES">>log_diff.txt
+echo "#####################################">>log_diff.txt
+echo "ERRORES PERSON :" $person_error_total>>log_diff.txt
+echo "ERRORES LOCATION :" $location_error_total>>log_diff.txt
+echo "ERRORES ORGANIZATION :" $organization_error_total>>log_diff.txt
+
 rm -rfv dir.tmp
+
