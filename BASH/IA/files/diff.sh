@@ -16,7 +16,8 @@ do
         file=$(echo $kk | rev | cut -d'.' -f2 | rev)
 	echo "FILE --"$file
 	#1) una palabra por linea (solo )
-	sug=$(cat $file"_ori" | sed 's/ /\n'/g | grep "suggestions")
+	#sug=$(cat $file"_ori" | sed 's/ /\n'/g' | grep "suggestions")
+	sug=$(cat $file"_ori"  | grep "suggestions")
 	#2) buscar palabras sugeridas
 	substr "$sug" "<suggestions>" "</suggestions>" > sugerencias.tmp
 	cat sugerencias.tmp | sed 's/ /\n/g' | grep / > sugerencias.txt
