@@ -1,0 +1,8 @@
+IA - VECTOR (SVM)
+==================
+
+Para que los scripts funcionen, los archivo deben seguir el orden de la carpeta file (colocada a modo de ejemplo)
+
+El vector utiliza una base de datos Slite3 para agilizar la busqueda de palabras y clase, etc.
+
+para ejecutarlo corre el script vector.sh
