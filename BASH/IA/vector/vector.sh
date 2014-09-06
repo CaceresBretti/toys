@@ -241,7 +241,7 @@ do
         der3=$(sqlite3 ia.db "select id, frecuencia from frecuencia where palabra='$s_der3';" | sed 's/|/:/g')
 
         echo $token" "$izq1" "$izq2" "$izq3" "$palabra" "$der1" "$der2" "$der3
-        sqlite3 ia.db "insert into vector_numerico (num_token, izq1, izq2, izq3, pal, der1, der2, der3, comentario) values ($$
+        sqlite3 ia.db "insert into vector_numerico (num_token, izq1, izq2, izq3, pal, der1, der2, der3, comentario) values ($token, '$izq1', '$izq2', '$izq3','$palabra', '$der1', '$der2', '$der3', '$comentario')"
 done < vector_palabra.tmp
 rm -rfv vector_palabra.tmp
 echo "Vector Generado"
