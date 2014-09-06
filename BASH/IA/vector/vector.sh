@@ -44,10 +44,9 @@ sqlite_insert_vector_palabra(){
 	sqlite3 ../ia.db "insert into vector_palabra (clase, izq1, izq2, izq3, palabra, der1, der2, der3, tema) values ($1, '$2', '$3', '$4', '$5', '$6', '$7', '$8', '$9')"
 }
 
-
-#sqlite_calcu_frecuencia(){
-#
-#}
+sqlite_insert_frecuencia(){
+        sqlite3 ia.db "insert into frecuencia (palabra, frecuencia) select string, count(*) from palabras group by string;"
+}
 
 #CREO LAS TABLAS
 sqlite_tables
@@ -208,11 +207,73 @@ do
 	cd ..
 	let cont_dir=cont_dir+1
 done < dir.tmp
+rm -rfv dir.tmp
+
 #CONTAR LA FRECUENCIA
+clear
+echo "Calculando la frecuencia...."
+sqlite_insert_frecuencia
+clear
+echo "Calculando la frecuencia -Listo!"
+
 
 #GENERAR VECTOR
+sqlite3 ia.db "select * from vector_palabra;" >> vector_palabra.tmp
+while read line
+do
+        v=0
+        token=$(echo $line | awk -F '|' {'print $2'})
+        s_izq1=$(echo $line | awk -F '|' {'print $3'})
+        s_izq2=$(echo $line | awk -F '|' {'print $4'})
+        s_izq3=$(echo $line | awk -F '|' {'print $5'})
+        s_palabra=$(echo $line | awk -F '|' {'print $6'})
+        s_der1=$(echo $line | awk -F '|' {'print $7'})
+        s_der2=$(echo $line | awk -F '|' {'print $8'})
+        s_der3=$(echo $line | awk -F '|' {'print $9'})
+        comentario=$(echo $line | awk -F '|' {'print $10'})
 
-echo "Contando Palabras"
+        izq1=$(sqlite3 ia.db "select id, frecuencia from frecuencia where palabra='$s_izq1';" | sed 's/|/:/g')
+        izq2=$(sqlite3 ia.db "select id, frecuencia from frecuencia where palabra='$s_izq2';" | sed 's/|/:/g')
+        izq3=$(sqlite3 ia.db "select id, frecuencia from frecuencia where palabra='$s_izq3';" | sed 's/|/:/g')
+        palabra=$(sqlite3 ia.db "select id, frecuencia from frecuencia where palabra='$s_palabra';" | sed 's/|/:/g')
+        der1=$(sqlite3 ia.db "select id, frecuencia from frecuencia where palabra='$s_der1';" | sed 's/|/:/g')
+        der2=$(sqlite3 ia.db "select id, frecuencia from frecuencia where palabra='$s_der2';" | sed 's/|/:/g')
+        der3=$(sqlite3 ia.db "select id, frecuencia from frecuencia where palabra='$s_der3';" | sed 's/|/:/g')
+
+        echo $token" "$izq1" "$izq2" "$izq3" "$palabra" "$der1" "$der2" "$der3
+        sqlite3 ia.db "insert into vector_numerico (num_token, izq1, izq2, izq3, pal, der1, der2, der3, comentario) values ($$
+done < vector_palabra.tmp
+rm -rfv vector_palabra.tmp
+echo "Vector Generado"
 
 
+#GENERANDO 10 LOTES (Split / S)
+clear
+echo "Generando 10 Lotes (S)"
+inicio=0
+final=664
+for i in `seq 1 10`;
+do
+        echo "Generando S$i.txt"
+        sqlite3 ia.db "select num_token, izq1, izq2, izq3, pal, der1,der2,der3 from vector_numerico where id>"$inicio" and i$
+        #echo "select * from vector_numerico where id>"$inicio" and id<"$final 
+        inicio=$final
+        let final=final+664
+done
 
+#GENERANDO 10 CONJUNTOS DE ENTRENAMIENTO
+for i in `seq 1 10`;
+do
+        echo "Generando E$i.txt"
+        for j in `seq 1 10`;
+        do
+                echo "E$1:"
+                if [ "$i" -ne "$j" ];then
+                        cat S$j".txt" >> E$i".txt"
+                fi
+        done
+done
+
+
+echo "Fin "
+echo "Descague SVM LIGTH"
